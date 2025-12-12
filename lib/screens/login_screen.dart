@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,9 +25,11 @@ class _LoginScreenState extends State<LoginScreen> {
           "Masuk ke Netflix",
           style: TextStyle(color: Colors.white),
         ),
+
+        // FIX: kembali pakai GO ROUTER
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go('/welcome'),
         ),
       ),
 
@@ -77,8 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // ➜ BARIS INI FIX MASUK BERANDA
-                      Navigator.pushReplacementNamed(context, '/home');
+                      // FIX: masuk ke home pakai GO ROUTER
+                      context.go('/home');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red.shade700,
@@ -104,7 +107,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         setState(() => rememberMe = v!);
                       },
                     ),
-                    const Text("Ingat saya", style: TextStyle(color: Colors.white70)),
+                    const Text("Ingat saya",
+                        style: TextStyle(color: Colors.white70)),
                   ],
                 ),
 
@@ -112,7 +116,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, '/loginCode');
+                    // FIX: pakai GO ROUTER
+                    context.push('/loginCode');
                   },
                   child: const Text(
                     "Gunakan kode masuk",
@@ -128,7 +133,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, '/register');
+                    // FIX: pakai GO ROUTER
+                    context.push('/register');
                   },
                   child: const Text(
                     "Baru di Netflix? Daftar sekarang.",

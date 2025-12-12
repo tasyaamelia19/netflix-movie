@@ -4,15 +4,26 @@ import '../models/movie.dart';
 import '../providers/download_provider.dart';
 import '../providers/my_list_provider.dart';
 import '../data/movies_data.dart';
+import '../widgets/simple_controller.dart';
 
-class DetailScreen extends ConsumerWidget {
+// Tambahan impor fake video
+import 'fake_video_screen.dart';
+
+class DetailScreen extends ConsumerStatefulWidget {
   final Movie movie;
 
   const DetailScreen({super.key, required this.movie});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isSaved = ref.watch(myListProvider).contains(movie);
+  ConsumerState<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends ConsumerState<DetailScreen> {
+  bool isPlaying = true; // untuk controller
+
+  @override
+  Widget build(BuildContext context) {
+    final isSaved = ref.watch(myListProvider).contains(widget.movie);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -22,11 +33,31 @@ class DetailScreen extends ConsumerWidget {
           children: [
             Stack(
               children: [
-                // Poster Film
+                // Poster Film + Controller
                 SizedBox(
                   width: double.infinity,
                   height: 350,
-                  child: Image.asset(movie.imageUrl, fit: BoxFit.cover),
+                  child: Stack(
+                    children: [
+                      Image.asset(
+                        widget.movie.imageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      ),
+
+                      // === CONTROLLER NETFLIX YANG SUDAH BENAR ===
+                      Positioned.fill(
+                        child: SimpleController(
+                          isPlaying: isPlaying,
+                          onPlayPause: () {
+                            setState(() {
+                              isPlaying = !isPlaying;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 // GRADIENT
@@ -66,7 +97,7 @@ class DetailScreen extends ConsumerWidget {
                     children: [
                       // Judul Film
                       Text(
-                        movie.title,
+                        widget.movie.title,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 34,
@@ -78,7 +109,7 @@ class DetailScreen extends ConsumerWidget {
 
                       // Genre & Rating
                       Text(
-                        "${movie.genre} • ⭐ ${movie.rating}",
+                        "${widget.movie.genre} • ⭐ ${widget.movie.rating}",
                         style: const TextStyle(color: Colors.white70),
                       ),
 
@@ -86,7 +117,7 @@ class DetailScreen extends ConsumerWidget {
 
                       // Description
                       Text(
-                        movie.description,
+                        widget.movie.description,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Colors.white70),
@@ -99,7 +130,17 @@ class DetailScreen extends ConsumerWidget {
                         children: [
                           // PLAY
                           ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => FakeVideoScreen(
+                                    title: widget.movie.title,
+                                    image: widget.movie.imageUrl,
+                                  ),
+                                ),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
                               foregroundColor: Colors.black,
@@ -110,15 +151,15 @@ class DetailScreen extends ConsumerWidget {
 
                           const SizedBox(width: 10),
 
-                          // DAFTAR SAYA (TOGGLE)
+                          // DAFTAR SAYA
                           OutlinedButton.icon(
                             onPressed: () {
                               final alreadySaved =
-                                  ref.read(myListProvider).contains(movie);
+                                  ref.read(myListProvider).contains(widget.movie);
 
                               ref
                                   .read(myListProvider.notifier)
-                                  .toggleMovie(movie);
+                                  .toggleMovie(widget.movie);
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -135,14 +176,10 @@ class DetailScreen extends ConsumerWidget {
                             style: OutlinedButton.styleFrom(
                               side: const BorderSide(color: Colors.white),
                             ),
-
-                            // ICON berubah otomatis
                             icon: Icon(
                               isSaved ? Icons.check : Icons.add,
                               color: Colors.white,
                             ),
-
-                            // LABEL berubah otomatis
                             label: Text(
                               isSaved
                                   ? "Ada di Daftar Saya"
@@ -158,7 +195,7 @@ class DetailScreen extends ConsumerWidget {
                             onPressed: () {
                               ref
                                   .read(downloadProvider.notifier)
-                                  .addDownload(movie);
+                                  .addDownload(widget.movie);
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

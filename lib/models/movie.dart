@@ -5,15 +5,17 @@ class Movie {
   final double rating;
   final String description;
 
+  final Map<String, List<String>>? subtitles;
+
   Movie({
     required this.title,
     required this.imageUrl,
     required this.genre,
     required this.rating,
     required this.description,
+    this.subtitles, 
   });
 
-  // Tambahkan ini agar .contains() bisa bekerja
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

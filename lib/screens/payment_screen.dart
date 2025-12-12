@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -30,41 +30,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
   ];
 
   void confirmPayment() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (route) => false,
-    );
+    // FIX TERBESAR: gunakan go() bukan push()
+    context.go('/login');
   }
 
   Widget buildPlanCard(Map<String, String> plan) {
     final bool isSelected = selectedPlan == plan["title"];
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque, // 🔥 FIX tombol paket bisa ditekan
       onTap: () {
         setState(() {
           selectedPlan = plan["title"];
         });
       },
       child: Container(
-        width: 300, 
+        width: 300,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         margin: const EdgeInsets.only(bottom: 18),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.07),
-          borderRadius: BorderRadius.circular(18), // lebih kecil
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected ? Colors.red : Colors.transparent,
             width: 2,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 8,
-              spreadRadius: 1,
-              offset: const Offset(0, 4),
-            )
-          ],
         ),
         child: Column(
           children: [
@@ -72,7 +62,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               plan["title"]!,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 18, 
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -91,7 +81,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white70,
-                fontSize: 12, 
+                fontSize: 12,
               ),
             ),
           ],
@@ -112,20 +102,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
           style: TextStyle(fontSize: 18, color: Colors.white),
         ),
       ),
-
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             children: [
               const SizedBox(height: 20),
 
-              ...plans.map((plan) => buildPlanCard(plan)).toList(),
+              ...plans.map(buildPlanCard).toList(),
 
               const SizedBox(height: 20),
 
-              // === TOMBOL KONFIRMASI ===
               SizedBox(
-                width: 260, 
+                width: 260,
                 height: 48,
                 child: ElevatedButton(
                   onPressed: selectedPlan == null ? null : confirmPayment,

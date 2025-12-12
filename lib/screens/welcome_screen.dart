@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -19,7 +20,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         width: double.infinity,
         height: double.infinity,
 
-        // 🖼️ BACKGROUND GAMBAR NETFLIX
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/bg.jpeg"),
@@ -28,7 +28,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
 
         child: Container(
-          // 🔳 OVERLAY HITAM AGAR MIRIP NETFLIX
           color: Colors.black.withOpacity(0.65),
 
           child: SingleChildScrollView(
@@ -39,7 +38,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 30),
 
@@ -94,6 +92,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                       const SizedBox(height: 16),
 
+                      // BUTTON MULAI — FIXED
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -105,7 +104,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             ),
                           ),
                           onPressed: () {
-                            Navigator.pushNamed(context, "/register");
+                            GoRouter.of(context).go("/register");
                           },
                           child: const Text(
                             "Mulai",
@@ -133,15 +132,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  // 🔻🔻 TOP NAVBAR
+  // TOP NAVBAR
   Widget buildTopNavbar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.4),
-        border: const Border(
-          bottom: BorderSide(color: Colors.white12),
-        ),
+        border: const Border(bottom: BorderSide(color: Colors.white12)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -160,8 +157,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               GestureDetector(
                 onTap: showLanguageDialog,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.white54),
                     borderRadius: BorderRadius.circular(8),
@@ -178,11 +175,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      const Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                      const Icon(Icons.keyboard_arrow_down,
+                          color: Colors.white, size: 20),
                     ],
                   ),
                 ),
@@ -200,7 +194,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pushNamed(context, "/login");
+                  GoRouter.of(context).go("/login");
                 },
                 child: const Text("Masuk", style: TextStyle(fontSize: 14)),
               ),
@@ -211,7 +205,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  // LANGUAGE POPUP
+  // LANGUAGE DIALOG
   void showLanguageDialog() {
     showDialog(
       context: context,
@@ -249,12 +243,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       title: Text(lang, style: const TextStyle(color: Colors.white)),
       onTap: () {
         setState(() => selectedLanguage = lang);
-        Navigator.of(context).pop();
+        Navigator.pop(context);
       },
     );
   }
 
-  // 🔻🔻 REASON SECTION
+  // REASON SECTION
   Widget buildReasonSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,20 +271,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           mainAxisSpacing: 12,
           childAspectRatio: 1.4,
           children: [
-            buildCard("Nikmati di TV-mu",
-                "Tonton di Smart TV, Playstation, Xbox, Chromecast, Apple TV, dan lainnya."),
-            buildCard("Download serial offline",
-                "Simpan favoritmu agar selalu bisa ditonton."),
-            buildCard("Tonton di mana pun",
-                "Streaming tanpa batas di ponsel, laptop, tablet, dan TV."),
-            buildCard("Buat profil untuk anak",
-                "Biarkan anak menikmati tontonan yang ramah anak."),
+            buildCard(
+              "Nikmati di TV-mu",
+              "Tonton di Smart TV, Playstation, Xbox, Chromecast, Apple TV, dan lainnya.",
+            ),
+            buildCard(
+              "Download serial offline",
+              "Simpan favoritmu agar selalu bisa ditonton.",
+            ),
+            buildCard(
+              "Tonton di mana pun",
+              "Streaming tanpa batas di ponsel, laptop, tablet, dan TV.",
+            ),
+            buildCard(
+              "Buat profil untuk anak",
+              "Biarkan anak menikmati tontonan yang ramah anak.",
+            ),
           ],
         ),
       ],
     );
   }
 
+  // CARD UNTUK REASON
   Widget buildCard(String title, String subtitle) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -304,7 +307,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           Text(
             title,
             style: const TextStyle(
-                color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -316,7 +322,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  // 🔻🔻 FAQ SECTION
+  // FAQ SECTION
   Widget buildFAQSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,6 +347,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  // ITEM FAQ
   Widget buildFAQItem(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,26 +24,45 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 4000),
     );
 
-    // skala dari sangat kecil ke normal lalu sedikit overshoot
+    // skala dari kecil → besar → normal
     _scaleAnim = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.2, end: 1.05).chain(CurveTween(curve: Curves.easeOut)), weight: 60),
-      TweenSequenceItem(tween: Tween(begin: 1.05, end: 1.0).chain(CurveTween(curve: Curves.easeInOut)), weight: 40),
+      TweenSequenceItem(
+        tween: Tween(begin: 0.2, end: 1.05)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 60,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.05, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 40,
+      ),
     ]).animate(_controller);
 
-    // opacity: muncul lalu bertahan lalu menghilang
+    // opacity muncul → diam → menghilang
     _opacityAnim = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeIn)), weight: 30),
-      TweenSequenceItem(tween: ConstantTween<double>(1.0), weight: 50),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeOut)), weight: 20),
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween<double>(1.0),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 20,
+      ),
     ]).animate(_controller);
 
     _controller.forward();
 
-    // setelah 4 detik, pindah ke welcome
-    Future.delayed(const Duration(milliseconds: 4000), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/welcome');
-      }
+    // 🔥 INI BAGIAN YANG DIPERBAIKI AGAR BERFUNGSI
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 4000), () {
+        if (mounted) context.go('/welcome');
+      });
     });
   }
 
@@ -53,7 +73,6 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget _netflixLogoLarge() {
-    // Logo sederhana hanya teks merah NETFLIX dengan font tebal
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -79,12 +98,11 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    // cinematic background gradient + vignette
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // background: dark + subtle image effect (here gradient)
+          // Background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -95,14 +113,14 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // slightly blurred background decoration (cinematic bar)
+          // Cinematic lower fade
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
               height: 160,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.85)],
+                  colors: [Colors.transparent, Colors.black],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -110,7 +128,7 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // centered animated logo
+          // Logo animation
           Center(
             child: AnimatedBuilder(
               animation: _controller,
@@ -127,30 +145,31 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // subtle cinematic horizontal bar sweep
+          // Light effect
           Positioned.fill(
             child: IgnorePointer(
               child: AnimatedBuilder(
                 animation: _controller,
                 builder: (context, _) {
                   final progress = _controller.value;
-                  // create a sweeping glare that moves across
-                  final dx = (progress * 2) - 0.5; // -0.5 -> 1.5
+                  final dx = (progress * 2) - 0.5;
+
                   return Opacity(
                     opacity: (1.0 - progress) * 0.6,
                     child: Align(
-                      alignment: Alignment(0, -0.3),
+                      alignment: const Alignment(0, -0.3),
                       child: Transform.translate(
-                        offset: Offset(MediaQuery.of(context).size.width * dx, 0),
+                        offset: Offset(
+                            MediaQuery.of(context).size.width * dx, 0),
                         child: Container(
                           width: 220,
                           height: 18,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0),
                                 Colors.white.withOpacity(0.08),
-                                Colors.white.withOpacity(0.0)
+                                Colors.white.withOpacity(0),
                               ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,

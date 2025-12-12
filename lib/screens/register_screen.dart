@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // ➤ Tambahkan import GoRouter
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -53,7 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context), // Bisa diganti GoRouter.of(context).pop()
         ),
       ),
 
@@ -135,7 +136,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return;
                       }
 
-                      Navigator.pushNamed(context, "/payment");
+                      // ➤ DIGANTI MENGGUNAKAN GO ROUTER
+                      GoRouter.of(context).go("/payment");
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red.shade700,

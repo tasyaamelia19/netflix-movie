@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+// Import semua screen
 import 'screens/splash_screen.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
@@ -15,12 +17,58 @@ void main() {
   runApp(const ProviderScope(child: NetflixCloneIntroApp()));
 }
 
+// ================= GO ROUTER ===================
+
+final GoRouter _router = GoRouter(
+  initialLocation: '/',
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/welcome',
+      builder: (context, state) => const WelcomeScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/loginCode',
+      builder: (context, state) => const CodeLoginScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/payment',
+      builder: (context, state) => const PaymentScreen(),
+    ),
+    GoRoute(
+      path: '/home',
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/myList',
+      builder: (context, state) => MyListScreen(),
+    ),
+    GoRoute(
+      path: '/download',
+      builder: (context, state) => DownloadScreen(),
+    ),
+  ],
+);
+
+// ================================================
+
 class NetflixCloneIntroApp extends StatelessWidget {
   const NetflixCloneIntroApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Netflix Clone',
       debugShowCheckedModeBanner: false,
 
@@ -30,19 +78,7 @@ class NetflixCloneIntroApp extends StatelessWidget {
         useMaterial3: true,
       ),
 
-      initialRoute: '/',
-
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/welcome': (context) => const WelcomeScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/loginCode': (context) => const CodeLoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/payment': (context) => const PaymentScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/myList': (context) => MyListScreen(),
-        '/download': (context) => DownloadScreen(),
-      },
+      routerConfig: _router,
     );
   }
 }
