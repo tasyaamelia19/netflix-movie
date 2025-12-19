@@ -23,9 +23,14 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
   bool subtitleOn = true;
   String subtitleLang = "ID";
 
+  // State untuk Fitur Kualitas Video
+  String selectedQuality = "720p";
+  bool showQualityMenu = false;
+  final List<String> qualities = ["360p", "480p", "720p", "1080p (HD)"];
+
   double progress = 0.0;
   double volume = 50;
-  bool showVolumeSlider = false; // muncul slider ketika tombol volume ditekan
+  bool showVolumeSlider = false;
 
   Timer? timer;
 
@@ -59,7 +64,12 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
 
   void autoHideController() {
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted && isPlaying) setState(() => showController = false);
+      if (mounted && isPlaying) {
+        setState(() {
+          showController = false;
+          showQualityMenu = false; // Tutup menu kualitas saat kontrol hilang
+        });
+      }
     });
   }
 
@@ -86,6 +96,55 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
     });
   }
 
+  // Widget Animasi Implisit untuk Menu Kualitas 
+  Widget buildQualityMenu() {
+    return Positioned(
+      bottom: 110,
+      right: 20,
+      child: AnimatedOpacity(
+        opacity: (showQualityMenu && showController) ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut, // Menggunakan kurva agar lebih natural [cite: 12, 19]
+        child: Visibility(
+          visible: showQualityMenu && showController,
+          child: Container(
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.85),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white24),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: qualities.map((q) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedQuality = q;
+                      showQualityMenu = false;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(q, style: const TextStyle(color: Colors.white)),
+                        if (selectedQuality == q)
+                          const Icon(Icons.check, color: Colors.red, size: 16),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget buildNetflixSkipButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: () {
@@ -108,7 +167,7 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
   Widget buildSubtitle() {
     if (!subtitleOn) return const SizedBox();
     return Positioned(
-      bottom: 150, // agar muat tombol bawah
+      bottom: 150,
       left: 0,
       right: 0,
       child: Text(
@@ -134,7 +193,6 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            // Skip – Play/Pause – Skip
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -152,28 +210,23 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
                 buildNetflixSkipButton(Icons.forward_10_rounded, skipForward),
               ],
             ),
-
-            // Progress bar
             Slider(
               value: progress,
               activeColor: Colors.red,
               inactiveColor: Colors.white38,
               onChanged: (v) => setState(() => progress = v),
             ),
-
             const SizedBox(height: 10),
-
-            // Tombol bawah: Volume + Subtitle + Bahasa
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Volume tunggal
                 Column(
                   children: [
                     GestureDetector(
                       onTap: () {
                         setState(() {
                           showVolumeSlider = !showVolumeSlider;
+                          showQualityMenu = false;
                         });
                         autoHideController();
                       },
@@ -184,44 +237,34 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
                       ),
                     ),
                     if (showVolumeSlider)
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 140,
-                            child: Slider(
-                              value: volume,
-                              min: 0,
-                              max: 100,
-                              divisions: 100,
-                              label: volume.round().toString(),
-                              activeColor: Colors.red,
-                              inactiveColor: Colors.white24,
-                              onChanged: (v) {
-                                setState(() {
-                                  volume = v;
-                                  muted = v == 0;
-                                });
-                                autoHideController();
-                              },
-                            ),
-                          ),
-                        ],
+                      SizedBox(
+                        width: 140,
+                        child: Slider(
+                          value: volume,
+                          min: 0,
+                          max: 100,
+                          divisions: 100,
+                          label: volume.round().toString(),
+                          activeColor: Colors.red,
+                          inactiveColor: Colors.white24,
+                          onChanged: (v) {
+                            setState(() {
+                              volume = v;
+                              muted = v == 0;
+                            });
+                            autoHideController();
+                          },
+                        ),
                       ),
                   ],
                 ),
-
-                // Subtitle toggle
                 IconButton(
                   icon: Icon(
                     subtitleOn ? Icons.subtitles : Icons.subtitles_off,
                     color: Colors.white,
                   ),
-                  onPressed: () {
-                    setState(() => subtitleOn = !subtitleOn);
-                  },
+                  onPressed: () => setState(() => subtitleOn = !subtitleOn),
                 ),
-
-                // Bahasa toggle
                 TextButton(
                   onPressed: () {
                     setState(() {
@@ -233,9 +276,18 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ),
+                // TOMBOL PENGATURAN KUALITAS
+                IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                  onPressed: () {
+                    setState(() {
+                      showQualityMenu = !showQualityMenu;
+                      showVolumeSlider = false;
+                    });
+                  },
+                ),
               ],
             ),
-
             const SizedBox(height: 20),
           ],
         ),
@@ -247,7 +299,10 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        setState(() => showController = !showController);
+        setState(() {
+          showController = !showController;
+          if (!showController) showQualityMenu = false;
+        });
         if (showController) autoHideController();
       },
       onDoubleTap: togglePlayPause,
@@ -263,6 +318,7 @@ class _FakeVideoScreenState extends State<FakeVideoScreen> {
             ),
             buildSubtitle(),
             buildController(),
+            buildQualityMenu(), // Memanggil menu kualitas di atas kontrol
             Positioned(
               top: 40,
               left: 20,
